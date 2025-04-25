@@ -11,7 +11,7 @@ In this workshop, you will replicate a specific Our World in Data (OWID) page fe
 
 The goal is to use R and Quarto to recreate the interactive tables and charts found here: [https://ourworldindata.org/grapher/happiness-cantril-ladder](https://ourworldindata.org/grapher/happiness-cantril-ladder){target="_blank"}. You will then generate an HTML output file and publish it online using GitHub Pages.
 
-An example of the completed HTML page for this workshop can be viewed [here](https://the-graph-courses.github.io/rmc_life_satisfaction_webpage/).
+An example of the completed HTML page for this workshop can be viewed [here](https://the-graph-courses.github.io/rmc_life_satisfaction_webpage/){target="_blank"}.
 
 # Instructions
 
