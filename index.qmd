@@ -2,15 +2,12 @@
 title: "Self-reported life satisfaction, 2011 to 2023"
 subtitle: "Replicating the Our World in Data Grapher"
 author: "YOUR NAME HERE" # Remember to add your name!
-date: "16-10-2024"
 theme: united
 ---
 
-<!-- Custom HTML to add logo [DO NOT EDIT THIS SECTION] -->
+<!-- Custom HTML and style to add logo and custom font [DO NOT EDIT THIS SECTION] -->
 
 <img src="Our_World_in_Data_logo.png" style="position:absolute; top:0; right:0; padding:10px;" width="146"/>
-
-<!-- Custom font and style of page [DO NOT EDIT THIS SECTION] -->
 
 <link href='https://fonts.googleapis.com/css?family=Playfair Display' rel='stylesheet'>
 
@@ -22,24 +19,26 @@ h1 {
 </style>
 ```
 
+<!--- End of Custom HTML; Start of R Code --->
+
 ```{r include = F}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
-# Load packages 
-if(!require(pacman)) install.packages("pacman")
+# Load packages
+if (!require(pacman)) install.packages("pacman")
 pacman::p_load(plotly, tidyverse, reactable, here, scales)
 ```
 
 ```{r}
 ## Import data
-cantril <- 
-  read_csv(here("data/happiness-cantril-ladder.csv")) %>% 
-  rename(Country = Entity)
+cantril <-
+    read_csv(here("data/happiness-cantril-ladder.csv")) %>%
+    rename(Country = Entity)
 ```
 
 ### Happiness across the world over time
 
-The World Happiness Report is a well-known source of cross-country data on self-reported life satisfaction, collected by the Gallup World Poll. The visualizations below present the ‘happiness scores’ for each country, published these reports.
+The World Happiness Report is a well-known source of cross-country data on self-reported life satisfaction, collected by the Gallup World Poll. The visualizations below present the ‘happiness scores’ for each country.
 
 The main life evaluation question asked in the poll is the Cantril Life Ladder question:
 
@@ -51,12 +50,19 @@ The main life evaluation question asked in the poll is the Cantril Life Ladder q
 **Average self-reported life satisfaction** – Cantril Ladder score (0=worst; 10=best)
 
 ```{r}
-# In this tab, you will create a table similar to the one on the Our World in Data page. The table should have the following columns:
+# In this tab, you will create a table similar to the one on the Our World in Data page.
+# The table should have the following columns:
 # Country, `2011`, `2023`, Absolute change, and Relative change.
 
-
-# Create table
-
+# You should:
+# 1. Use `select` to drop the Code column from the `cantril` data as it is not needed in the table.
+# 2. Filter the `cantril` data frame to just the years 2011 and 2023.
+# 3. Use the `pivot_wider` function to create the columns for 2011 and 2023.
+# (You may need backticks around column names with spaces or which start with numbers.)
+# 4. Use the `mutate` function to calculate the Absolute change and Relative change.
+# 5. Also with `mutate`, you should round your numbers to appropriate decimal places.
+# 6. Then use scales::percent to format the Relative change as a percentage.
+# 7. Use the `reactable` function to create and output the table.
 "WRITE_YOUR_CODE_HERE"
 ```
 
@@ -67,47 +73,44 @@ The map plots the average answer that survey respondents provided to this questi
 
 ```{r}
 # This code is already done for you. You don't need to change anything here. If you change any of the column names, or something else with the data, you may need to adjust the code below.
-
-# Make boundaries light grey
-l <- list(color = toRGB("grey"), width = 0.5)
-
-# Specify map projection/options
-g <- list(
-  showframe = FALSE,
-  coastlinecolor = "grey", # Set coastline color
-  coastlinewidth = 0.5, # Set coastline width
-  projection = list(type = 'Mercator')
-)
-
 # Create choropleth map
 cantril %>%
-  mutate(`Cantril ladder score` = round(`Cantril ladder score`, 2)) %>%
-  plot_geo(width = 940) %>%
-  add_trace(
-    z = ~`Cantril ladder score`,
-    color = ~`Cantril ladder score`,
-    zmin = 0, # Set minimum value for color scale
-    zmax = 10, # Set maximum value for color scale
-    locations = ~Code,
-    text = ~Country,
-    frame = ~Year, colors = "YlGn",
-    marker = list(line = l)
-  ) %>%
-  colorbar(title = "Ladder Score",
-           tickvals = seq(0, 10, by = 2),
-           ticktext = seq(0, 10, by = 2)) %>%
-  layout(geo = g)
+    mutate(`Cantril ladder score` = round(`Cantril ladder score`, 2)) %>%
+    plotly::plot_geo(width = 940) %>%
+    add_trace(
+        z = ~`Cantril ladder score`,
+        color = ~`Cantril ladder score`,
+        locations = ~Code,
+        text = ~Country,
+        frame = ~Year, colors = "YlGn"
+    ) %>%
+    colorbar(
+        title = "Ladder Score",
+        limits = c(min(cantril$`Cantril ladder score`), max(cantril$`Cantril ladder score`)),
+        tickvals = seq(0, 10, by = 2),
+        ticktext = seq(0, 10, by = 2)
+    )
 ```
 
 
 ## 📈 Simple Chart
 
 ```{r}
-# In this tab, create a simple line chart of the Cantril score over time for a few countries, similar to the one on the Our World in Data page.
+# In this tab, create a simple line chart of the Cantril score over time for a few countries,
+# similar to the one on the Our World in Data page.
 # Note that your chart will not have the ability to filter countries like the one on the Our World in Data page.
 
-# Create line chart
+# You should:
+# 1. Filter the cantril data to just 4 to 8 countries you want to highlight
+# 2. Use ggplot to create a line chart of the Cantril score over time, with different colors for each country
+# 3. Use geom_line to create the lines
+# 4. Use scale_y_continuous to set the y-axis limits to 0 and 10.
+# 5. Use labs to create neat labels for the chart
+# 6. Use theme_minimal to set the theme.
+# 7. Finally, use ggplotly to convert the ggplot chart to a plotly chart
+
 "WRITE_YOUR_CODE_HERE"
+# (When you're done with this section, don't forget to add tabsets, as mentioned in the instructions.)
 ```
 
 ## 📈 Advanced Chart
@@ -127,31 +130,34 @@ pacman::p_load(crosstalk, plotly)
 shared_cantril_data <- highlight_key(cantril)
 
 cantril_plotly <- plot_ly(
-  shared_cantril_data, 
-  x = ~Year, 
-  y = ~`Cantril ladder score`, 
-  color = ~Country, 
-  type = "scatter", 
-  mode = "lines+markers"
+    shared_cantril_data,
+    x = ~Year,
+    y = ~`Cantril ladder score`,
+    color = ~Country,
+    type = "scatter",
+    mode = "lines+markers"
 ) %>%
-  layout(yaxis = list(range = c(0, 10)))
+    layout(yaxis = list(range = c(0, 10)))
 
 
 country_filter <- filter_select(
-  "country_filter", 
-  "Select a country to examine", 
-  shared_cantril_data, 
-  ~Country, 
-  multiple = TRUE
+    "country_filter",
+    "Select a country to examine",
+    shared_cantril_data,
+    ~Country,
+    multiple = TRUE
 )
 
 # Output the filter and the plot
 bscols(
-  list(country_filter, cantril_plotly)
+    list(country_filter, cantril_plotly)
 )
+
+# Note that the default countries will only be set when you knit the document.
+# Because it relies on the javascript snippet below, which is not rendered in the quarto preview.
 ```
 
-<!-- Custom javascript to set default values in the filter: -->
+<!-- CUSTOM JAVASCRIPT TO SET DEFAULT VALUES IN THE FILTER: -->
 <script>
 function filter_default() {
   var default_countries = ["Norway", "Australia", "Germany", "Bolivia", "Colombia", "Bhutan"]; // Set default countries here
@@ -159,6 +165,15 @@ function filter_default() {
 }
 window.onload = filter_default;
 </script>
+
+
+```{r}
+# OPTIONAL CHALLENGE SECTION:
+
+# Add a final tab with a single figure that shows the top 10 and bottom 10 countries by happiness score in 2023. Remember to add a # header and include it in the tabsets
+"WRITE_YOUR_CODE_HERE"
+```
+
 
 # {.unlisted}
 
