@@ -170,8 +170,8 @@ window.onload = filter_default;
 ```{r}
 # OPTIONAL CHALLENGE SECTION:
 
-# Add a final tab with a single figure that shows the top 10 and bottom 10 countries by happiness score in 2023. Remember to add a # header and include it in the tabsets
-"WRITE_YOUR_CODE_HERE"
+# Add a final tab with a single figure that shows the top 10 and bottom 10 countries by happiness score in 2023. Remember to add a ## header and include it in the tabsets
+# "WRITE_YOUR_CODE_HERE"
 ```
 
 
