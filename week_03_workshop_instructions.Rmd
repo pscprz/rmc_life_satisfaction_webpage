@@ -13,12 +13,12 @@ The goal is to use R and Quarto to recreate the interactive tables and charts fo
 
 An example of the completed HTML page for this workshop can be viewed [here](https://the-graph-courses.github.io/rmc_life_satisfaction_webpage/){target="_blank"}.
 
-# Instructions
+# Getting Started
 
-1.  Fork the workshop repo here: [https://github.com/the-graph-courses/rmc_life_satisfaction_webpage](https://github.com/the-graph-courses/rmc_life_satisfaction_webpage){target="_blank"}. This step should be completed in your web browser.
+1.  Fork the workshop repo here: [https://github.com/the-graph-courses/rmc_life_satisfaction_webpage](https://github.com/the-graph-courses/rmc_life_satisfaction_webpage){target="_blank"}. 
 2.  Clone to your local computer.
-3.  Open the project file (`rmc_03_workshop.Rproj`) in RStudio.
-4.  In your Files pane, open the `index.qmd` file, and replace the `"WRITE_YOUR_CODE_HERE"` chunks with your answers.
-5.  If you finish early, try the optional challenge section which is at the bottom of the file.
-6.  **Add tabsets.** We covered this in prework but you can review it [here](https://quarto.org/docs/output-formats/html-basics.html#tabsets){target="_blank"}.
+3.  Open the project in RStudio.
+4.  Open the `index.qmd` file, and read through the instructions, replacing the `"WRITE_YOUR_CODE_HERE"` chunks with your answers.
+5.  **Add tabsets.** We covered this in prework but you can review it [here](https://quarto.org/docs/output-formats/html-basics.html#tabsets){target="_blank"}.
+6.  (If you finish early, try the optional challenge section at the bottom of the `index.qmd` file.)
 7.  When finished, render your HTML, push your changes to GitHub and enable GitHub Pages for the repository. 
