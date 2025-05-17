@@ -1,7 +1,7 @@
 ---
 title: "Self-reported life satisfaction, 2011 to 2023"
 subtitle: "Replicating the Our World in Data Grapher"
-author: "YOUR NAME HERE" # Remember to add your name!
+author: "github: pscprz (@qwertz19)" # Remember to add your name!
 theme: united
 ---
 
@@ -44,6 +44,7 @@ The main life evaluation question asked in the poll is the Cantril Life Ladder q
 
 > “Please imagine a ladder, with steps numbered from 0 at the bottom to 10 at the top. The top of the ladder represents the best possible life for you and the bottom of the ladder represents the worst possible life for you. On which step of the ladder would you say you personally feel you stand at this time?”
 
+:::{.panel-tabset} 
 
 ## 🔢 Table
 
@@ -55,15 +56,29 @@ The main life evaluation question asked in the poll is the Cantril Life Ladder q
 # Country, `2011`, `2023`, Absolute change, and Relative change.
 
 # You should:
-# 1. Use `select` to drop the Code column from the `cantril` data as it is not needed in the table.
-# 2. Filter the `cantril` data frame to just the years 2011 and 2023.
-# 3. Use the `pivot_wider` function to create the columns for 2011 and 2023.
-# (You may need backticks around column names with spaces or which start with numbers.)
-# 4. Use the `mutate` function to calculate the Absolute change and Relative change.
-# 5. Also with `mutate`, you should round your numbers to appropriate decimal places.
-# 6. Then use scales::percent to format the Relative change as a percentage.
-# 7. Use the `reactable` function to create and output the table.
-"WRITE_YOUR_CODE_HERE"
+cantril_cols <- cantril %>%
+                rename(Cantril_ladder_score=`Cantril ladder score`) %>%
+  # 1. Use `select` to drop the Code column from the `cantril` data as it is not needed in the table.
+                select(-Code) %>%
+  # 2. Filter the `cantril` data frame to just the years 2011 and 2023.
+                filter(Year == 2011 | Year == 2023) %>%
+  # 3. Use the `pivot_wider` function to create the columns for 2011 and 2023.
+                pivot_wider(names_from = Year, values_from = Cantril_ladder_score, names_prefix ="CLScore_") %>%
+  # 4. Use the `mutate` function to calculate the Absolute change and Relative change.
+                mutate(Absolute_Change = CLScore_2023 - CLScore_2011,
+                       Relative_Change = Absolute_Change / CLScore_2023) %>%
+  # 5. Also with `mutate`, you should round your numbers to appropriate decimal places.
+                mutate(Absolute_Change=round(Absolute_Change, digits=2),
+  # 6. Then use scales::percent to format the Relative change as a percentage.
+                       Relative_Change_pct=percent(round(Relative_Change, digits=2), accuracy=0.01)) 
+
+
+# 7. Use the `reactable` function to create and output the table. 
+cantril_reactbl <-  cantril_cols %>%
+                    select(Country, CLScore_2011, CLScore_2023, Absolute_Change, Relative_Change_pct) %>%
+                    reactable()
+cantril_reactbl
+# unique(cantril_cols$Year)               
 ```
 
 
@@ -101,17 +116,27 @@ cantril %>%
 # Note that your chart will not have the ability to filter countries like the one on the Our World in Data page.
 
 # You should:
-# 1. Filter the cantril data to just 4 to 8 countries you want to highlight
-# 2. Use ggplot to create a line chart of the Cantril score over time, with different colors for each country
-# 3. Use geom_line to create the lines
-# 4. Use scale_y_continuous to set the y-axis limits to 0 and 10.
-# 5. Use labs to create neat labels for the chart
-# 6. Use theme_minimal to set the theme.
+#unique(cantril$Country)
+simple_linechart <- cantril %>% 
+  # 1. Filter the cantril data to just 4 to 8 countries you want to highlight
+                  filter(Country %in% c("Argentina","Austria","Belgium","Bolivia","Brazil",
+                        "Canada","Chile","Denmark","Finland", "Germany","Mexico")) %>%
+  # 2. Use ggplot to create a line chart of the Cantril score over time, with different colors for each country
+                  ggplot(aes( x=Year, y=`Cantril ladder score`, col= Country)) + 
+  # 3. Use geom_line to create the lines
+                  geom_line() + 
+  # 4. Use scale_y_continuous to set the y-axis limits to 0 and 10.
+                  scale_y_continuous(limits = c(0, 10)) +
+  # 5. Use labs to create neat labels for the chart
+  labs(title="Line chart of the Cantril score over time", x="Year", y="Cantril ladder score") +
+  # 6. Use theme_minimal to set the theme.
+                  theme_minimal() 
+#simple_linechart
 # 7. Finally, use ggplotly to convert the ggplot chart to a plotly chart
-
-"WRITE_YOUR_CODE_HERE"
+  ggplotly(simple_linechart)
 # (When you're done with this section, don't forget to add tabsets, as mentioned in the instructions.)
 ```
+
 
 ## 📈 Advanced Chart
 
@@ -160,20 +185,103 @@ bscols(
 <!-- CUSTOM JAVASCRIPT TO SET DEFAULT VALUES IN THE FILTER: -->
 <script>
 function filter_default() {
-  var default_countries = ["Norway", "Australia", "Germany", "Bolivia", "Colombia", "Bhutan"]; // Set default countries here
+  var default_countries = ["Norway", "Australia", "Germany", "Bolivia", "Colombia", "Bhutan", "Mexico"]; // Set default countries here
   document.getElementById("country_filter").getElementsByClassName("selectized")[0].selectize.setValue(default_countries, false);
 }
 window.onload = filter_default;
 </script>
 
 
+## 🔢 Table with top 10 and 10 bottom countries by happiness score in 2023
+
+The table following listed corresponds to the 10 highest and lowest countries on happiness score from 2011 to 2023.
+
 ```{r}
 # OPTIONAL CHALLENGE SECTION:
 
 # Add a final tab with a single figure that shows the top 10 and bottom 10 countries by happiness score in 2023. Remember to add a ## header and include it in the tabsets
-# "WRITE_YOUR_CODE_HERE"
-```
+cantril_top_10 <- cantril_cols %>%
+  filter(!is.na(CLScore_2023) & !is.na(CLScore_2011)) %>%
+  arrange(-CLScore_2023) %>%
+  head(10) 
 
+cantril_low_10 <- cantril_cols %>%
+  filter(!is.na(CLScore_2023) & !is.na(CLScore_2011)) %>%
+  arrange(-CLScore_2023) %>%
+  tail(10)
+
+cantril_toplow_10 <- rbind(cantril_top_10, cantril_low_10) 
+
+cantril_toplow_10_reactbl <- cantril_toplow_10 %>%
+                            select(-Relative_Change) %>%
+                            reactable()
+cantril_toplow_10_reactbl
+```
+## 📈 Chart of Top and Bottom 10 Countries by Happiness Score
+
+The linechart shown below corresponds to the 10 highest and lowest countries on happiness score from 2011 to 2023 and it is based on the table from the preceding tab. We can see the gap between the top 10 countries (Finland, Denmark, Iceland, Sweden, Israel, Netherlands, Norway, Luxembourg, Switzerland and Australia) which scored highest and the bottom 10 countries (Comoros, Yemen, Zambia, Malawi, Botswana, Zimbabwe, Democratic Republic of Congo, Sierra Leone, Lebanon and Afghanistan), which scored lowest values on the Cantril ladder score over time. 
+
+```{r}
+toplow_10_countries <- unique(cantril_toplow_10$Country)
+
+toplow_10_linechart <- cantril %>% 
+  # 1. Filter the cantril data to just 4 to 8 countries you want to highlight
+                  filter(Country %in% toplow_10_countries) %>%
+  # Specifying the variabe Country as an ordered factor, in order to keep the values
+                  mutate(Country=factor(Country, levels=c("Finland","Denmark","Iceland","Sweden","Israel",
+                                                          "Netherlands","Norway","Luxembourg","Switzerland","Australia",
+                                                          "Comoros","Yemen","Zambia","Malawi","Botswana",
+                                                          "Zimbabwe","Democratic Republic of Congo","Sierra Leone",
+                                                          "Lebanon","Afghanistan"), ordered=TRUE)) %>%
+  # 2. Use ggplot to create a line chart of the Cantril score over time, with different colors for each country
+                  ggplot(aes( x=Year, y=`Cantril ladder score`, col= Country)) + 
+  # 3. Use geom_line to create the lines
+                  geom_line() + 
+  # 4. Use scale_y_continuous to set the y-axis limits to 0 and 10.
+                  scale_y_continuous(limits = c(0, 10)) +
+  # 5. Use labs to create neat labels for the chart
+  labs(title="Line chart of the Cantril score from 2011 to 2023", x="Year", y="Cantril ladder score") +
+  # 6. Use theme_minimal to set the theme.
+                  theme_minimal() 
+#simple_linechart
+# 7. Finally, use ggplotly to convert the ggplot chart to a plotly chart
+  ggplotly(toplow_10_linechart)
+  
+```  
+## 📈 Lollipop Plot of Top 10 and Bottom 10 Countries by Relative Change in Happiness Score
+
+Alternatively, we can take a look on the lollipop chart shown below, where the relative change on happiness score is displayed for the 10 countries which scored either highest or lowest  from 2011 to 2023. We can also see here the gap (although less noticeable) between the top 10 countries (Finland, Denmark, Iceland, Sweden, Israel, Netherlands, Norway, Luxembourg, Switzerland and Australia) which scored highest and the bottom 10 countries (Comoros, Yemen, Zambia, Malawi, Botswana, Zimbabwe, Democratic Republic of Congo, Sierra Leone, Lebanon and Afghanistan), which scored lowest values on the Cantril ladder score over time. 
+```{r}
+toplow_10_chart <- cantril_toplow_10 %>% 
+                  mutate(Relative_Change=(100*round(Relative_Change,digits=2)),
+                         Country=factor(Country, levels=c("Finland","Denmark","Iceland","Sweden","Israel",
+                                                          "Netherlands","Norway","Luxembourg","Switzerland","Australia",
+                                                          "Comoros","Yemen","Zambia","Malawi","Botswana",
+                                                          "Zimbabwe","Democratic Republic of Congo","Sierra Leone",
+                                                          "Lebanon","Afghanistan"), ordered=TRUE)) %>%
+  # 2. Use ggplot to create a lollipop chart of the relative change in Cantril score over time, with different colors for each country
+                  ggplot(aes(x = Country, y = Relative_Change)) +
+                  geom_segment(aes(x = Country, xend = Country, y = 0, yend = Relative_Change),
+                               color = "gray71", lwd = 1) +
+                  geom_point(col = "gray71") +
+                  #geom_point(size = 7.5, pch = 21, bg = 4, col = "gray41") +
+                  geom_text(aes(label = Relative_Change_pct), nudge_y = 0.7, color = "black", size = 3) +
+  # 4. Use scale_y_continuous to set the y-axis limits to -150 and 25.
+                  scale_y_continuous(limits = c(-150.00, 25.00)) +
+  # 5. Use labs to create neat labels for the chart
+  labs(x="Country", y="Relative Change (%) from 2011 to 2023") +
+  # 6. Use theme_minimal to set the theme.
+                  theme_minimal()  +
+  theme(axis.text.x = element_text(angle = 90,
+                                   vjust = 0.5, hjust = 1))
+# 7. Finally, use ggplotly to convert the ggplot chart to a plotly chart
+  ggplotly(toplow_10_chart)
+  
+  
+  
+```  
+
+:::
 
 # {.unlisted}
 
