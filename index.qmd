@@ -1,7 +1,7 @@
 ---
 title: "Self-reported life satisfaction, 2011 to 2023"
 subtitle: "Replicating the Our World in Data Grapher"
-author: "github: pscprz (@qwertz19)" # Remember to add your name!
+author: "qwertz19 (github: pscprz)" # Remember to add your name!
 theme: united
 ---
 
@@ -276,9 +276,6 @@ toplow_10_chart <- cantril_toplow_10 %>%
                                    vjust = 0.5, hjust = 1))
 # 7. Finally, use ggplotly to convert the ggplot chart to a plotly chart
   ggplotly(toplow_10_chart)
-  
-  
-  
 ```  
 
 :::
